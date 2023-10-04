@@ -22,7 +22,23 @@ class ScenarioElement {
 public class Scenario {
 
     private final List<ScenarioElement> myElements = new LinkedList<>();
+    private class ScenarioThread extends Thread{
+        private Bandeau b;
 
+        public ScenarioThread(Bandeau b) {
+            this.b = b;
+        }
+        public void run() {
+            synchronized(b){
+                for (ScenarioElement element : myElements) {
+                    for (int repeats = 0; repeats < element.repeats; repeats++) {
+                        element.effect.playOn(b);
+                    }
+                }
+            }
+
+        }
+    }
     /**
      * Ajouter un effect au scenario.
      *
@@ -33,16 +49,18 @@ public class Scenario {
         myElements.add(new ScenarioElement(e, repeats));
     }
 
+
     /**
      * Jouer ce scenario sur un bandeau
      *
      * @param b le bandeau ou s'afficher.
      */
-    public void playOn(Bandeau b) {
-        for (ScenarioElement element : myElements) {
-            for (int repeats = 0; repeats < element.repeats; repeats++) {
-                element.effect.playOn(b);
-            }
+
+
+        public void playOn(Bandeau b) {
+                ScenarioThread t = new ScenarioThread(b);
+                t.start();
         }
+
     }
-}
+
